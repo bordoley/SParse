@@ -4,7 +4,7 @@ open System
 
 type CharMatcher = char -> bool
 
-module internal CharMatchers =
+module CharMatchers =
     let isAnyOf (chars:string) =
         // FIXME: Probably add some heuristics here based upon the number of chars in the string
         // and switch the implementation
@@ -15,7 +15,7 @@ module internal CharMatchers =
     let inRange (start:char) (last:char) (c:char) = 
         c >= start && c <= last
 
-module internal CharParsers =
+module CharParsers =
     let manySatisfy (matcher:CharMatcher) (input: CharStream) =
         let rec findLast index =
             if index = input.Length then index
