@@ -1,38 +1,42 @@
-﻿namespace SParse
+﻿namespace Sparse
 
 open System
+open System.Collections
+open System.Collections.Generic
 
-type CharStream private (str: string, offset:int, length:int) =   
-    static let empty = new CharStream("", 0, 0)
+type CharStream =
+    internal {
+        str: string 
+        offset:int
+    }
 
-    member this.Length with get() = length
+    member this.Length with get() = this.str.Length - this.offset
 
     member this.Item 
         with get(index:int) =
-            if index < 0 || index >= length then invalidArg "index" "index is out of bounds"
+            if index < 0 || index >= this.Length then ArgumentOutOfRangeException "index" |> raise 
 
-            str.Chars(offset + index)
-                      
-    member this.GetSlice(start, finish) =
-        let start = defaultArg start 0
-        let finish = defaultArg finish (length - 1)
+            this.str.Chars(this.offset + index)
+    
+    member this.SubStream (startIndex:int) =
+        if startIndex < 0 || startIndex > this.Length then ArgumentOutOfRangeException "startIndex" |> raise 
 
-        if start < 0 || finish < (start - 1) || finish >= length then ArgumentOutOfRangeException () |> raise 
-
-        match (start, finish) with
-        | (x, y) when x = 0 && y = (length - 1) -> this
-        | (x, y) when y - x = -1 -> empty
-        | _ -> new CharStream(str, offset + start, finish - start + 1)
+        match startIndex with
+        | 0 -> this
+        | x when x = this.Length -> CharStream.Empty
+        | _ -> { str = this.str; offset = this.offset + startIndex }
 
     override this.ToString() = 
-        str.Substring(offset,length)
+        this.str.Substring(this.offset)
+
+    static member Empty = { str = ""; offset = 0 }
 
     static member Create (str:string) = 
-        if str.Length = 0 then empty
-        else CharStream(str, 0, str.Length)
+        if str.Length = 0 then CharStream.Empty
+        else { str = str; offset = 0 }
 
 [<AutoOpen>] 
 module CharStreamMixins =
     type CharStream with
         member this.ToString(startIndex, length) =
-            this.[startIndex..(startIndex + length - 1)].ToString()
+            this.str.Substring(this.offset + startIndex, length)

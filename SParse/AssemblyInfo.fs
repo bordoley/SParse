@@ -1,9 +1,9 @@
-﻿namespace SParse
+﻿namespace Sparse
 
 open System.Reflection
 open System.Runtime.CompilerServices
 
-[<assembly: AssemblyTitle("SParse")>]
+[<assembly: AssemblyTitle("Sparse")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]

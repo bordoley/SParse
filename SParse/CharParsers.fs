@@ -1,10 +1,10 @@
-﻿namespace SParse
+﻿namespace Sparse
 
 open System
+open System.Text.RegularExpressions
 
-type CharMatcher = char -> bool
-
-module CharMatchers =
+[<AutoOpen>]
+module CharPredicates =
     let isAnyOf (chars:string) =
         // FIXME: Probably add some heuristics here based upon the number of chars in the string
         // and switch the implementation
@@ -12,23 +12,67 @@ module CharMatchers =
         Array.sortInPlace chars
         fun c -> Array.BinarySearch(chars, c) > 0
 
-    let inRange (start:char) (last:char) (c:char) = 
-        c >= start && c <= last
+    let inRange (start:char) (last:char) = 
+        let isInRange (c:char) =
+            c >= start && c <= last
+        isInRange
 
+    let isDigit = inRange '0' '9'
+
+[<AutoOpen>]
 module CharParsers =
-    let manySatisfy (matcher:CharMatcher) (input: CharStream) =
-        let rec findLast index =
+    let satisfy f =
+        let parse (input:CharStream) =
+            if input.Length = 0 then Fail 0
+            else 
+                let result = input.Item 0
+                if f result 
+                then  Success(result, 1)
+                else Fail 0
+        parse
+
+    let pchar c  = satisfy (fun i -> i = c)
+
+    let pSemicolon : Parser<char> = pchar ';'
+
+    let pComma : Parser<char> = pchar ','
+
+    let pSpace : Parser<char> = pchar ' '
+
+    let pColon : Parser<char> = pchar ':'
+
+    let pPeriod : Parser<char> = pchar '.' 
+
+    let pEquals : Parser<char> = pchar '=' 
+
+    let pForwardSlash : Parser<char> = pchar '/'
+
+    let pDash : Parser<char> = pchar '-'
+
+    let pOpenParen : Parser<char> = pchar '('
+
+    let pCloseParen : Parser<char> = pchar ')'
+
+    let pQuote : Parser<char> = pchar (char 34)
+
+    let pAsterisk : Parser<char> = pchar '*'
+
+    let manySatisfy f =
+        let rec findLast index (input:CharStream) =
             if index = input.Length then index
-            else if matcher (input.Item index)
-                then findLast (index + 1)
+            else if f (input.Item index)
+                then findLast (index + 1) input
             else index
+            
+        let parse (input:CharStream) =
+            let result = findLast 0 input
 
-        let result = findLast 0
+            Success (input.ToString(0, result), result)
 
-        Success (input.ToString(0, result), result)
+        parse
 
-    let many1Satisfy (matcher:CharMatcher) =
-        let p = manySatisfy matcher
+    let many1Satisfy f =
+        let p = manySatisfy f
 
         let doParse input = 
             match p input with
@@ -36,13 +80,29 @@ module CharParsers =
             | result -> result
 
         doParse
-            
-    let satisfy (f:char -> bool) (input:CharStream) =
-        if input.Length = 0 then Fail 0
-        else 
-            let result = input.Item 0
-            if f result 
-            then  Success(result, 1)
-            else Fail 0
 
-    let pchar c  = satisfy (fun i -> i = c)
+    let manyMinMaxSatisfy minCount maxCount f =
+        let rec findLast index (input:CharStream) =
+            if index = input.Length then index
+            else if index = (maxCount + 1) then index
+            else if f input.[index]
+                then findLast (index + 1) input
+            else index
+
+        let parse (input:CharStream) =
+            let index = findLast 0 input
+            if index >= minCount then Success (input.ToString(0, index), index)
+            else Fail (index - 1)
+
+        parse
+
+    let regex pattern =
+        let pattern = "\G" + pattern
+        let regex = Regex(pattern, RegexOptions.Multiline ||| RegexOptions.ExplicitCapture)
+
+        let parse (input:CharStream) =
+            let result = regex.Match(input.str, input.offset)
+            if not result.Success then Fail 0
+            else Success (result.Value, result.Length)
+
+        parse

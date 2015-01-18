@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SParse", "SParse\SParse.fsproj", "{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Sparse", "Sparse\Sparse.fsproj", "{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

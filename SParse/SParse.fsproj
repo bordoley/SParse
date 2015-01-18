@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>SParse</RootNamespace>
-    <AssemblyName>SParse</AssemblyName>
+    <RootNamespace>Sparse</RootNamespace>
+    <AssemblyName>Sparse</AssemblyName>
     <OutputType>Library</OutputType>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
