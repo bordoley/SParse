@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Sparse", "Sparse\Sparse.fsproj", "{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}"
 EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Sparse.Tests-Net45", "Sparse.Tests\Sparse.Tests-Net45.fsproj", "{90421AAB-13FB-49C3-9B17-0EE84171F87E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,5 +15,9 @@ Global
 		{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AA401A8-4B3C-4CDE-BC32-596418DCB5EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90421AAB-13FB-49C3-9B17-0EE84171F87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90421AAB-13FB-49C3-9B17-0EE84171F87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90421AAB-13FB-49C3-9B17-0EE84171F87E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90421AAB-13FB-49C3-9B17-0EE84171F87E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
