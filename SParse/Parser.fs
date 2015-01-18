@@ -128,9 +128,12 @@ module Primitives =
         p |> opt |>> (function | Some x -> x | _ -> alt)
 
     let parse (p:Parser<_>) =
-        let p = p .>> eof
         let parse (input:String) = p (CharStream.Create input)  
         parse
+
+    let parseToEof (p:Parser<_>) =
+        let p = p .>> eof
+        parse p
    
     let sepBy1 (p:Parser<_>) (sep:Parser<_>)  =
         p .>>. (many (sep >>. p)) |>> (fun (a, b) -> Seq.append [a] b) 
