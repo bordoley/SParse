@@ -106,3 +106,18 @@ module CharParsers =
             else Success (result.Value, result.Length)
 
         parse
+
+    let pstring (str:string) =
+        let parse (input:CharStream) =
+            if input.Length < str.Length
+                then Fail input.Length
+            else
+                let rec doParse i =
+                    if i = str.Length
+                        then Success (str, i)
+                    else if (str.Chars i) = (input.Item i)
+                        then doParse (i + 1)
+                    else Fail i
+
+                doParse 0
+        parse
