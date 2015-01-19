@@ -57,15 +57,15 @@ module CharParsers =
 
     let pAsterisk : Parser<char> = pchar '*'
 
-    let manySatisfy f =
-        let rec findLast index (input:CharStream) =
-            if index = input.Length then index
-            else if f (input.Item index)
-                then findLast (index + 1) input
-            else index
-            
+    let manySatisfy f =    
         let parse (input:CharStream) =
-            let result = findLast 0 input
+            let rec findLast index =
+                if index = input.Length then index
+                else if f (input.Item index)
+                    then findLast (index + 1)
+                else index
+
+            let result = findLast 0 
 
             Success (input.ToString(0, result), result)
 
@@ -82,15 +82,16 @@ module CharParsers =
         doParse
 
     let manyMinMaxSatisfy minCount maxCount f =
-        let rec findLast index (input:CharStream) =
-            if index = input.Length then index
-            else if index = (maxCount + 1) then index
-            else if f input.[index]
-                then findLast (index + 1) input
-            else index
-
         let parse (input:CharStream) =
-            let index = findLast 0 input
+            let rec findLast index =
+                if index = input.Length then index
+                else if index = maxCount then index
+                else if f input.[index]
+                    then findLast (index + 1)
+                else index
+
+            let index = findLast 0
+
             if index >= minCount then Success (input.ToString(0, index), index)
             else Fail (index - 1)
 
