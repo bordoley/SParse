@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <Tailcalls>false</Tailcalls>
+    <DocumentationFile>bin\Debug\Sparse.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -28,6 +29,9 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <Tailcalls>true</Tailcalls>
+    <DocumentationFile>bin\Release\Sparse.XML</DocumentationFile>
+    <DefineConstants>
+    </DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

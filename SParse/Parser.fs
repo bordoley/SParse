@@ -3,6 +3,7 @@ namespace Sparse
 open System;
 open System.Collections.Generic
 
+[<NoComparison;NoEquality>]
 type ParseResult<'TResult> =
     | Success of  result : 'TResult * next : int
     | Fail of atIndex : int

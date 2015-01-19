@@ -13,5 +13,7 @@ open System.Runtime.CompilerServices
 
 [<assembly: AssemblyVersion("0.0.1")>]
 
+[<assembly: InternalsVisibleTo("Sparse.Tests")>]
+
 
 ()
