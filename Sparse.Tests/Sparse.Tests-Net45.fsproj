@@ -36,6 +36,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Content Include="app.config" />
+    <Compile Include="Helpers.fs" />
     <Compile Include="CharStreamTests.fs" />
     <Compile Include="PrimitiveTests.fs" />
     <Compile Include="CharParserTests.fs" />

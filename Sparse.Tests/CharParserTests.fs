@@ -13,7 +13,7 @@ module CharParsers =
             match parse p "" with
             | Fail i -> 
                 i |> should equal 0
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
 
         [<Test>]
         let ``with matching input`` () =
@@ -21,14 +21,14 @@ module CharParsers =
             | Success (result, next) -> 
                 result |> should equal 'c'
                 next |> should equal 1
-            | _ -> failwith "expected parsing to succeed."
+            | _ -> expectedParseSuccess ()
 
         [<Test>]
         let ``without matching input`` () =
             match parse p "accc" with
             | Fail i -> 
                 i |> should equal 0
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
     
     module ``manySatisfy and many1Satisfy`` = 
         let p = many1Satisfy (fun c -> c = 'a')
@@ -38,7 +38,7 @@ module CharParsers =
             match parse p "" with 
             | Fail i -> 
                 i |> should equal 0
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
 
         [<Test>]
         let ``with matching input`` () =
@@ -46,7 +46,7 @@ module CharParsers =
              | Success (result, next) -> 
                 result |> should equal "aaa"
                 next |> should equal 3
-             | _ -> failwith "expected parsing to succeed."
+             | _ -> expectedParseSuccess ()
 
     module manyMinMaxSatisfy =
         let p = manyMinMaxSatisfy 3 5 (fun c -> c = 'a')
@@ -56,7 +56,7 @@ module CharParsers =
             match parse p "aabbb" with
             | Fail i ->
                 i |> should equal 1
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
         
         [<Test>]
         let ``with more than max chars matching`` () =
@@ -64,7 +64,7 @@ module CharParsers =
             | Success (result, next) -> 
                 result |> should equal "aaaaa"
                 next |> should equal 5
-             | _ -> failwith "expected parsing to succeed."
+             | _ -> expectedParseSuccess ()
         
         [<Test>]
         let ``within range chars matching`` () =
@@ -72,7 +72,7 @@ module CharParsers =
             | Success (result, next) -> 
                 result |> should equal "aaaa"
                 next |> should equal 4
-             | _ -> failwith "expected parsing to succeed."
+             | _ -> expectedParseSuccess ()
 
     module pstring =
         let successResult = "test"
@@ -83,14 +83,14 @@ module CharParsers =
             match parse p "tes" with
             | Fail i -> 
                 i |> should equal 3
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
 
         [<Test>]
         let ``when the input is a partial match`` () =
             match parse p "tes_____" with
             | Fail i -> 
                 i |> should equal 3
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
 
         [<Test>]
         let ``when the input is a match`` () =
@@ -98,7 +98,7 @@ module CharParsers =
             | Success (result, next) -> 
                 result |> should equal successResult
                 next |> should equal successResult.Length
-            | _ -> failwith "expected parsing to succeed."
+            | _ -> expectedParseSuccess ()
 
     module regex =
         let p = regex "a+"
@@ -109,7 +109,7 @@ module CharParsers =
             | Success (result, next) -> 
                 result |> should equal "aaa"
                 next |> should equal 3
-            | _ -> failwith "expected parsing to succeed."
+            | _ -> expectedParseSuccess ()
 
         [<Test>]
         let ``with match in the middle of the string`` () =
@@ -119,11 +119,11 @@ module CharParsers =
             | Success (result, next) ->
                 result |> should equal "aaa"
                 next |> should equal 3
-            | _ -> failwith "expected parsing to succeed."
+            | _ -> expectedParseSuccess ()
 
         [<Test>]
         let ``with no match at the start of the string`` () =
             match parse p "bbbbbaaa" with
             | Fail i ->
                 i |> should equal 0
-            | _ -> failwith "expected parsing to fail."
+            | _ -> expectedParseFail ()
