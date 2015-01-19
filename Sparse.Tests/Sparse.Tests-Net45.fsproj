@@ -34,9 +34,10 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <Compile Include="PrimitiveTests.fs" />
     <None Include="packages.config" />
     <Content Include="app.config" />
+    <Compile Include="CharStreamTests.fs" />
+    <Compile Include="PrimitiveTests.fs" />
     <Compile Include="CharParserTests.fs" />
   </ItemGroup>
   <ItemGroup>
