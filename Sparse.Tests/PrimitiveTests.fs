@@ -51,3 +51,21 @@ module Primitives =
                 result |> should equal "bar"
                 next |> should equal 6
             | _ -> expectedParseSuccess ()
+
+    module ``|>>`` =
+        let p = pstring "foo" |>> fun _ -> "bar"
+
+        [<Test>]
+        let ``when p succeeds`` () =
+            match parse p "foobar" with
+            | Success (result, next) ->
+                result |> should equal "bar"
+                next |> should equal 3
+            | _ -> expectedParseSuccess ()
+
+        [<Test>]
+        let ``when p fails`` ()  =
+            match parse p "fobar" with
+            | Fail i ->
+                i |> should equal 2
+            | _ -> expectedParseFail ()
