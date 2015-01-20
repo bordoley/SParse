@@ -102,7 +102,7 @@ module CharParsers =
         let regex = Regex(pattern, RegexOptions.Multiline ||| RegexOptions.ExplicitCapture)
 
         let parse (input:CharStream) =
-            let result = regex.Match(input.str, input.offset)
+            let result = regex.Match(input.BackingString, input.Offset)
             if not result.Success then Fail 0
             else Success (result.Value, result.Length)
 

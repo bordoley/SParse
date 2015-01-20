@@ -5,20 +5,19 @@ open System.Collections
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 
-[<NoComparison;NoEquality>]
-type CharStream =
-    internal {
-        str: string 
-        offset:int
-    }
+[<Sealed>]
+type CharStream private (str:string, offset:int) =
+    member internal this.BackingString with get () = str
 
-    member this.Length with get() = this.str.Length - this.offset
+    member internal this.Offset with get () = offset
+
+    member this.Length with get() = str.Length - offset
 
     member this.Item 
         with get(index:int) =
             if index < 0 || index >= this.Length then ArgumentOutOfRangeException "index" |> raise 
 
-            this.str.Chars(this.offset + index)
+            str.Chars(offset + index)
     
     member this.SubStream (startIndex:int) =
         if startIndex < 0 || startIndex > this.Length then ArgumentOutOfRangeException "startIndex" |> raise 
@@ -26,20 +25,16 @@ type CharStream =
         match startIndex with
         | 0 -> this
         | x when x = this.Length -> CharStream.Empty
-        | _ -> { str = this.str; offset = this.offset + startIndex }
+        | _ -> CharStream(str, offset + startIndex)
 
     override this.ToString() = 
-        this.str.Substring(this.offset)
+        str.Substring(offset)
 
-    static member internal Empty = { str = ""; offset = 0 }
+    member this.ToString(startIndex, length) =
+        str.Substring(offset + startIndex, length)
+
+    static member val internal Empty = CharStream("", 0)
 
     static member internal Create (str:string) = 
         if str.Length = 0 then CharStream.Empty
-        else { str = str; offset = 0 }
-
-[<AutoOpen>] 
-module CharStreamExtensions =
-    type CharStream with
-        [<Extension>]
-        member this.ToString(startIndex, length) =
-            this.str.Substring(this.offset + startIndex, length)
+        else CharStream(str, 0)
