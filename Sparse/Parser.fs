@@ -68,6 +68,7 @@ module Primitives =
             | Success (Choice1Of2 result, next) -> Success (result, next)
             | Success (Choice2Of2 result, next) -> Success (result, next)
 
+    // FIXME: Should this be a property?
     let eof (input:CharStream) =
         if input.Length = 0 
         then Success ((), 0)
@@ -83,7 +84,7 @@ module Primitives =
     let notFollowedBy (pnext:Parser<_>) =
         let parse (input:CharStream) =
             match pnext input with
-            | Success (_, i) -> Fail i
+            | Success (_, i) -> Fail (i - 1)
             | Fail i -> Success ((), 0)
         parse
 
