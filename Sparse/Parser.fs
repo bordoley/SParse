@@ -13,6 +13,7 @@ type Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 [<AutoOpen>]
 module Primitives = 
+    [<CompiledName("bind")>]
     let (>>=) (p:Parser<'a>) (f:'a->Parser<'b>) =
         let parse (input:CharStream) =
             match p input with
@@ -24,7 +25,7 @@ module Primitives =
                 | Success (result2, next2) -> Success (result2, next1 + next2)
         parse
 
-    // map
+    [<CompiledName("map")>]
     let (|>>) (p:Parser<_>) f =
         let parse (input:CharStream) =
             let result = p input
@@ -33,6 +34,7 @@ module Primitives =
             | Success (result, next) -> Success (f result, next)
         parse
 
+    //[<CompiledName("bind")>]
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) =
         let parse (input:CharStream) = 
             match p1 input with
@@ -50,6 +52,7 @@ module Primitives =
         p1 .>>. p2 |>> fun (r1,r2) -> r1
 
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
+    [<CompiledName("or")>]
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) =
         let parse (input:CharStream) = 
             match p1 input with 
@@ -61,6 +64,7 @@ module Primitives =
                 | Fail i -> Fail i
         parse
 
+    [<CompiledName("or")>]
     let (<|>) (p1:Parser<_>) (p2:Parser<_>) = 
         let p = p1 <^> p2
         fun (input:CharStream) ->
@@ -69,11 +73,12 @@ module Primitives =
             | Success (Choice1Of2 result, next) -> Success (result, next)
             | Success (Choice2Of2 result, next) -> Success (result, next)
 
-    // FIXME: Should this be a property?
-    let eof (input:CharStream) =
-        if input.Length = 0 
-        then Success ((), 0)
-        else Fail 0
+    let eof = 
+        let parse (input:CharStream) =
+            if input.Length = 0 
+            then Success ((), 0)
+            else Fail 0
+        parse
 
     let followedBy (pnext:Parser<_>) =
         let parse (input:CharStream) =
@@ -126,7 +131,7 @@ module Primitives =
         | Success (result, next) -> Success(Some result, next)
         | _ -> Success(None, 0)
 
-    // orElse
+    [<CompiledName("orElse")>]
     let (<|>%) (p:Parser<_>) alt =
         p |> opt |>> (function | Some x -> x | _ -> alt)
 
