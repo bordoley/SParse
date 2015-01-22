@@ -6,6 +6,7 @@ open System.Text.RegularExpressions
 
 [<AutoOpen>]
 module CharPredicates =
+    [<CompiledName("IsAnyOf")>]
     let isAnyOf (chars:string) =
         // FIXME: Probably add some heuristics here based upon the number of chars in the string
         // and switch the implementation
@@ -13,15 +14,18 @@ module CharPredicates =
         Array.sortInPlace chars
         fun c -> Array.BinarySearch(chars, c) > 0
 
+    [<CompiledName("InRange")>]
     let inRange (start:char) (last:char) = 
         let isInRange (c:char) =
             c >= start && c <= last
         isInRange
 
+    [<CompiledName("IsDigit")>]
     let isDigit = inRange '0' '9'
 
 [<AutoOpen>]
 module CharParsers =
+    [<CompiledName("Satisfy")>]
     let satisfy f =
         let parse (input:CharStream) =
             if input.Length = 0 then Fail 0
@@ -32,32 +36,46 @@ module CharParsers =
                 else Fail 0
         parse
 
+    [<CompiledName("Char")>]
     let pchar c  = satisfy (fun i -> i = c)
 
+    [<CompiledName("Semicolon")>]
     let pSemicolon : Parser<char> = pchar ';'
 
+    [<CompiledName("Comma")>]
     let pComma : Parser<char> = pchar ','
 
+    [<CompiledName("Space")>]
     let pSpace : Parser<char> = pchar ' '
 
+    [<CompiledName("Colon")>]
     let pColon : Parser<char> = pchar ':'
 
+    [<CompiledName("Period")>]
     let pPeriod : Parser<char> = pchar '.' 
 
+    [<CompiledName("Equals")>]
     let pEquals : Parser<char> = pchar '=' 
 
+    [<CompiledName("ForwardSlash")>]
     let pForwardSlash : Parser<char> = pchar '/'
 
+    [<CompiledName("Dash")>]
     let pDash : Parser<char> = pchar '-'
 
+    [<CompiledName("OpenParen")>]
     let pOpenParen : Parser<char> = pchar '('
 
+    [<CompiledName("CloseParen")>]
     let pCloseParen : Parser<char> = pchar ')'
 
+    [<CompiledName("Quote")>]
     let pQuote : Parser<char> = pchar (char 34)
 
+    [<CompiledName("Asterisk")>]
     let pAsterisk : Parser<char> = pchar '*'
 
+    [<CompiledName("ManySatisfy")>]
     let manySatisfy f =    
         let parse (input:CharStream) =
             let rec findLast index =
@@ -72,6 +90,7 @@ module CharParsers =
 
         parse
 
+    [<CompiledName("Many1Satisfy")>]
     let many1Satisfy f =
         let p = manySatisfy f
 
@@ -82,6 +101,7 @@ module CharParsers =
 
         doParse
 
+    [<CompiledName("ManyMinMaxSatisfy")>]
     let manyMinMaxSatisfy minCount maxCount f =
         if minCount < 0 then ArgumentException ("minCount less than 0", "minCount") |> raise 
         if maxCount < minCount then ArgumentException ("maxCount less than minCount", "maxCount") |> raise
@@ -102,6 +122,7 @@ module CharParsers =
 
         parse
 
+    [<CompiledName("Regex")>]
     let regex pattern =
         let pattern = "\G" + pattern
         let regex = Regex(pattern, RegexOptions.Multiline ||| RegexOptions.ExplicitCapture)
@@ -113,6 +134,7 @@ module CharParsers =
 
         parse
 
+    [<CompiledName("String")>]
     let pstring (str:string) =
         let parse (input:CharStream) =
             if input.Length < str.Length

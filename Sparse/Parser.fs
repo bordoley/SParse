@@ -2,9 +2,9 @@ namespace Sparse
 
 open System
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 open System.Diagnostics.Contracts
 
-[<NoComparison;NoEquality>]
 type ParseResult<'TResult> =
     | Success of  result : 'TResult * next : int
     | Fail of atIndex : int
@@ -12,8 +12,14 @@ type ParseResult<'TResult> =
 type Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 [<AutoOpen>]
+module Parser =
+    [<CompiledName("Parse"); Extension>]
+    let parse (p:Parser<_>) (input:String) =
+        p (CharStream.Create input)  
+
+[<AutoOpen>]
 module Primitives = 
-    [<CompiledName("bind")>]
+    [<CompiledName("Bind"); Extension>]
     let (>>=) (p:Parser<'a>) (f:'a->Parser<'b>) =
         let parse (input:CharStream) =
             match p input with
@@ -25,7 +31,7 @@ module Primitives =
                 | Success (result2, next2) -> Success (result2, next1 + next2)
         parse
 
-    [<CompiledName("map")>]
+    [<CompiledName("Map"); Extension>]
     let (|>>) (p:Parser<_>) f =
         let parse (input:CharStream) =
             let result = p input
@@ -34,7 +40,7 @@ module Primitives =
             | Success (result, next) -> Success (f result, next)
         parse
 
-    //[<CompiledName("bind")>]
+    [<CompiledName("Sequence"); Extension>]
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) =
         let parse (input:CharStream) = 
             match p1 input with
@@ -45,14 +51,16 @@ module Primitives =
                 | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
         parse
      
+    [<CompiledName("SequenceRight"); Extension>]
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
 
+    [<CompiledName("SequenceLeft"); Extension>]
     let (.>>) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r1
 
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
-    [<CompiledName("or")>]
+    [<CompiledName("Or"); Extension>]
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) =
         let parse (input:CharStream) = 
             match p1 input with 
@@ -64,7 +72,7 @@ module Primitives =
                 | Fail i -> Fail i
         parse
 
-    [<CompiledName("or")>]
+    [<CompiledName("Or"); Extension>]
     let (<|>) (p1:Parser<_>) (p2:Parser<_>) = 
         let p = p1 <^> p2
         fun (input:CharStream) ->
@@ -73,6 +81,7 @@ module Primitives =
             | Success (Choice1Of2 result, next) -> Success (result, next)
             | Success (Choice2Of2 result, next) -> Success (result, next)
 
+    [<CompiledName("Eof")>]
     let eof = 
         let parse (input:CharStream) =
             if input.Length = 0 
@@ -80,6 +89,7 @@ module Primitives =
             else Fail 0
         parse
 
+    [<CompiledName("FollowedBy")>]
     let followedBy (pnext:Parser<_>) =
         let parse (input:CharStream) =
             match pnext input with
@@ -87,6 +97,7 @@ module Primitives =
             | Fail i -> Fail i
         parse
 
+    [<CompiledName("NotFollowedBy")>]
     let notFollowedBy (pnext:Parser<_>) =
         let parse (input:CharStream) =
             match pnext input with
@@ -94,11 +105,13 @@ module Primitives =
             | Fail i -> Success ((), 0)
         parse
 
+    [<CompiledName("CreateParserForwardedToRef")>]
     let createParserForwardedToRef () =
         let dummy (input:CharStream) = InvalidOperationException "a parser created with createParserForwardedToRef was not initialized" |> raise
         let r = ref dummy
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
+    [<CompiledName("Many"); Extension>]
     let many (p:Parser<_>) =
         let rec doParse input (acc, pos) =
             match p input with
@@ -113,7 +126,8 @@ module Primitives =
             let (result, next) = doParse input ([], 0)
             Success ((List.rev result) :> seq<_>,  next)
         parse
-     
+
+    [<CompiledName("Many1"); Extension>]
     let many1 (p:Parser<_>) =   
         let p = many p
 
@@ -126,35 +140,38 @@ module Primitives =
                 else success
         parse
 
-    let opt (p:Parser<'TResult>) (input:CharStream) =
-        match p input with
-        | Success (result, next) -> Success(Some result, next)
-        | _ -> Success(None, 0)
-
-    [<CompiledName("orElse")>]
-    let (<|>%) (p:Parser<_>) alt =
-        p |> opt |>> (function | Some x -> x | _ -> alt)
-
-    let parse (p:Parser<_>) =
-        let parse (input:String) = p (CharStream.Create input)  
+    [<CompiledName("Optional"); Extension>]
+    let opt (p:Parser<'TResult>) =
+        let parse input =
+            match p input with
+            | Success (result, next) -> Success(Some result, next)
+            | _ -> Success(None, 0)
         parse
 
-    let parseToEof (p:Parser<_>) =
-        let p = p .>> eof
-        parse p
+    [<CompiledName("OrElse"); Extension>]
+    let (<|>%) (p:Parser<_>) alt =
+        p |> opt |>> (function | Some x -> x | _ -> alt)
    
+    [<CompiledName("SepBy1"); Extension>]
     let sepBy1 (p:Parser<_>) (sep:Parser<_>)  =
         p .>>. (many (sep >>. p)) |>> (fun (a, b) -> Seq.append [a] b) 
-          
+
+    [<CompiledName("SepBy"); Extension>]
     let sepBy (p:Parser<_>) (sep:Parser<_>) =
         (sepBy1 p sep) <|>% Seq.empty
 
+    [<CompiledName("Return")>]
     let preturn result = 
         let parse (input:CharStream) = Success (result, 0)
         parse
 
-    let pzero (input:CharStream) = Fail 0
+    [<CompiledName("Fail")>]
+    let pzero : Parser<unit> =
+        let parse (input:CharStream) = 
+            Fail 0
+        parse
 
+    [<CompiledName("ManyMinMax")>]
     let manyMinMax minCount maxCount (p:Parser<_>) =
         if minCount < 0 then ArgumentException ("minCount less than 0", "minCount") |> raise 
         if maxCount < minCount then ArgumentException ("maxCount less than minCount", "maxCount") |> raise
