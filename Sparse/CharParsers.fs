@@ -1,6 +1,7 @@
 ﻿namespace Sparse
 
 open System
+open System.Diagnostics.Contracts
 open System.Text.RegularExpressions
 
 [<AutoOpen>]
@@ -82,6 +83,10 @@ module CharParsers =
         doParse
 
     let manyMinMaxSatisfy minCount maxCount f =
+        if minCount < 0 then ArgumentException ("minCount less than 0", "minCount") |> raise 
+        if maxCount < minCount then ArgumentException ("maxCount less than minCount", "maxCount") |> raise
+        Contract.EndContractBlock()
+
         let parse (input:CharStream) =
             let rec findLast index =
                 if index = input.Length then index

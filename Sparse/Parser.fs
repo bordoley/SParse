@@ -1,7 +1,8 @@
 namespace Sparse
 
-open System;
+open System
 open System.Collections.Generic
+open System.Diagnostics.Contracts
 
 [<NoComparison;NoEquality>]
 type ParseResult<'TResult> =
@@ -89,7 +90,7 @@ module Primitives =
         parse
 
     let createParserForwardedToRef () =
-        let dummy (input:CharStream) = failwith "a parser created with createParserForwardedToRef was not initialized"
+        let dummy (input:CharStream) = InvalidOperationException "a parser created with createParserForwardedToRef was not initialized" |> raise
         let r = ref dummy
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
@@ -150,6 +151,10 @@ module Primitives =
     let pzero (input:CharStream) = Fail 0
 
     let manyMinMax minCount maxCount (p:Parser<_>) =
+        if minCount < 0 then ArgumentException ("minCount less than 0", "minCount") |> raise 
+        if maxCount < minCount then ArgumentException ("maxCount less than minCount", "maxCount") |> raise
+        Contract.EndContractBlock()
+
         let rec doParse input (acc, pos, cnt) =
             if cnt = maxCount 
                 then (acc, pos, cnt)
@@ -165,5 +170,5 @@ module Primitives =
         let parse input =
             let (result, next, cnt) = doParse input ([], 0, 0)
             if cnt >= minCount then Success ((List.rev result) :> seq<_>,  next)
-            else Fail (next - 1)
+            else Fail (next)
         parse

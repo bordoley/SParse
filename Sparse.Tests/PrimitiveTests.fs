@@ -3,6 +3,7 @@
 open NUnit.Framework
 open FsUnit
 open Sparse
+open System
 
 module Primitives =
     module pzero =
@@ -266,20 +267,22 @@ module Primitives =
     module ``sepBy1 and sepBy`` =
         let p =
             let p = pstring "test"
-            sepBy1 p (pchar ',')
+            sepBy p (pchar ',')
         
         [<Test>]
         let ``with no matches`` () =
             match parse p "fail,fail" with
-            | Fail i ->
-                i |> should equal 0
-            | _ -> expectedParseFail ()
+            | Success (result, next) ->
+                result |> List.ofSeq |> should equal []
+                next |> should equal 0
+            | _ -> expectedParseSuccess ()
 
         [<Test>]
         let ``with more than one match`` () =
             match parse p "test,test,test,test" with
             | Success (result, next) ->
                 (result |> List.ofSeq) |> should equal ["test"; "test"; "test";  "test"]
+                next |> should equal 19
             | _ -> expectedParseSuccess ()
 
     module ``<|>%`` =
@@ -302,13 +305,48 @@ module Primitives =
                 result |> should equal "bar"
                 next |> should equal 0
             | _ -> expectedParseSuccess ()
-
-    
+             
     module createParserForwardedToRef =
-        let x = 0
+        [<Test>]
+        let ``with uninitialized reference parser`` () =
+            let (parser, pRef) = createParserForwardedToRef ()
+
+            (fun () -> parse parser "" |> ignore) |> should throw typeof<InvalidOperationException>
+
+        [<Test>]
+        let ``with initialized reference parser`` () =
+            let (parser, pRef) = createParserForwardedToRef ()
+            pRef := pstring "foo"
+
+            match parse parser "foo" with
+            | Success _ -> ()
+            | _ -> expectedParseSuccess ()
 
     module manyMinMax =
-        let x = 0
+        let p = manyMinMax 2 4 (pstring "foo") 
+
+        [<Test>]
+        let ``with too few matches`` () =
+            match parse p "foo" with
+            | Fail i ->
+                i |> should equal 3
+            | _ -> expectedParseFail ()
+
+        [<Test>]
+        let ``with more than max matches`` () =
+            match parse p "foofoofoofoofoofoofoo" with
+            | Success (result, next) ->
+                (result |> List.ofSeq) |> should equal ["foo"; "foo"; "foo"; "foo"]
+                next |> should equal 12
+            | _ -> expectedParseFail ()
+
+        [<Test>]
+        let ``within range matches`` () =
+            match parse p "foofoofoo" with
+            | Success (result, next) ->
+                (result |> List.ofSeq) |> should equal ["foo"; "foo"; "foo"]
+                next |> should equal 9
+            | _ -> expectedParseFail ()
 
     module opt =
         let p = pstring "foo" |> opt
