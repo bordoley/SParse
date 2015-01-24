@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Sparse</id>
+    <version>0.0.1</version>
+    <title>Sparse</title>
+    <authors>David Bordoley</authors>
+    <licenseUrl>https://github.com/bordoley/Sparse/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/bordoley/Sparse</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>An F# parser combinator library for parsing strings.</summary>
+    <description>An F# parser combinator library for parsing strings.</description>
+    <tags>portable pcl</tags>
+    <references>
+      <reference file="Sparse.dll" />
+    </references>
+    <dependencies>
+      <dependency id="FSharp.Core" version="3.1.2.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Sparse\bin\Release\Sparse.dll" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10" />
+  </files>
+</package>
