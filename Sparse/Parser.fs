@@ -2,7 +2,6 @@ namespace Sparse
 
 open System
 open System.Collections.Generic
-open System.Runtime.CompilerServices
 open System.Diagnostics.Contracts
 
 type ParseResult<'TResult> =
@@ -13,13 +12,13 @@ type Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 [<AutoOpen>]
 module Parser =
-    [<CompiledName("Parse"); Extension>]
+    [<CompiledName("Parse")>]
     let parse (p:Parser<_>) (input:String) =
         p (CharStream.Create input)  
 
 [<AutoOpen>]
 module Primitives = 
-    [<CompiledName("Bind"); Extension>]
+    [<CompiledName("Bind")>]
     let (>>=) (p:Parser<'a>) (f:'a->Parser<'b>) =
         let parse (input:CharStream) =
             match p input with
@@ -31,7 +30,7 @@ module Primitives =
                 | Success (result2, next2) -> Success (result2, next1 + next2)
         parse
 
-    [<CompiledName("Map"); Extension>]
+    [<CompiledName("Map")>]
     let (|>>) (p:Parser<_>) f =
         let parse (input:CharStream) =
             let result = p input
@@ -40,7 +39,7 @@ module Primitives =
             | Success (result, next) -> Success (f result, next)
         parse
 
-    [<CompiledName("Sequence"); Extension>]
+    [<CompiledName("Sequence")>]
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) =
         let parse (input:CharStream) = 
             match p1 input with
@@ -51,16 +50,16 @@ module Primitives =
                 | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
         parse
      
-    [<CompiledName("SequenceRight"); Extension>]
+    [<CompiledName("SequenceRight")>]
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
 
-    [<CompiledName("SequenceLeft"); Extension>]
+    [<CompiledName("SequenceLeft")>]
     let (.>>) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r1
 
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
-    [<CompiledName("Or"); Extension>]
+    [<CompiledName("Or")>]
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) =
         let parse (input:CharStream) = 
             match p1 input with 
@@ -72,7 +71,7 @@ module Primitives =
                 | Fail i -> Fail i
         parse
 
-    [<CompiledName("Or"); Extension>]
+    [<CompiledName("Or")>]
     let (<|>) (p1:Parser<_>) (p2:Parser<_>) = 
         let p = p1 <^> p2
         fun (input:CharStream) ->
@@ -111,7 +110,7 @@ module Primitives =
         let r = ref dummy
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
-    [<CompiledName("Many"); Extension>]
+    [<CompiledName("Many")>]
     let many (p:Parser<_>) =
         let rec doParse input (acc, pos) =
             match p input with
@@ -127,7 +126,7 @@ module Primitives =
             Success ((List.rev result) :> seq<_>,  next)
         parse
 
-    [<CompiledName("Many1"); Extension>]
+    [<CompiledName("Many1")>]
     let many1 (p:Parser<_>) =   
         let p = many p
 
@@ -140,7 +139,7 @@ module Primitives =
                 else success
         parse
 
-    [<CompiledName("Optional"); Extension>]
+    [<CompiledName("Optional")>]
     let opt (p:Parser<'TResult>) =
         let parse input =
             match p input with
@@ -148,15 +147,15 @@ module Primitives =
             | _ -> Success(None, 0)
         parse
 
-    [<CompiledName("OrElse"); Extension>]
+    [<CompiledName("OrElse")>]
     let (<|>%) (p:Parser<_>) alt =
         p |> opt |>> (function | Some x -> x | _ -> alt)
    
-    [<CompiledName("SepBy1"); Extension>]
+    [<CompiledName("SepBy1")>]
     let sepBy1 (p:Parser<_>) (sep:Parser<_>)  =
         p .>>. (many (sep >>. p)) |>> (fun (a, b) -> Seq.append [a] b) 
 
-    [<CompiledName("SepBy"); Extension>]
+    [<CompiledName("SepBy")>]
     let sepBy (p:Parser<_>) (sep:Parser<_>) =
         (sepBy1 p sep) <|>% Seq.empty
 

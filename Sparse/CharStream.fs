@@ -3,7 +3,6 @@
 open System
 open System.Collections
 open System.Collections.Generic
-open System.Runtime.CompilerServices
 
 [<Sealed>]
 type CharStream private (str:string, offset:int) =
