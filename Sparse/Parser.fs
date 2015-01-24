@@ -165,7 +165,7 @@ module Primitives =
         parse
 
     [<CompiledName("Fail")>]
-    let pzero : Parser<unit> =
+    let pzero =
         let parse (input:CharStream) = 
             Fail 0
         parse
