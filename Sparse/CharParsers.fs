@@ -5,25 +5,6 @@ open System.Diagnostics.Contracts
 open System.Text.RegularExpressions
 
 [<AutoOpen>]
-module CharPredicates =
-    [<CompiledName("IsAnyOf")>]
-    let isAnyOf (chars:string) =
-        // FIXME: Probably add some heuristics here based upon the number of chars in the string
-        // and switch the implementation
-        let chars = chars.ToCharArray()
-        Array.sortInPlace chars
-        fun c -> Array.BinarySearch(chars, c) > 0
-
-    [<CompiledName("InRange")>]
-    let inRange (start:char) (last:char) = 
-        let isInRange (c:char) =
-            c >= start && c <= last
-        isInRange
-
-    [<CompiledName("IsDigit")>]
-    let isDigit = inRange '0' '9'
-
-[<AutoOpen>]
 module CharParsers =
     [<CompiledName("Satisfy")>]
     let satisfy f =
