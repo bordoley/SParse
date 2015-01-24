@@ -11,7 +11,7 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyCopyright("")>]
 [<assembly: AssemblyTrademark("")>]
 
-[<assembly: AssemblyVersion("0.0.2")>]
+[<assembly: AssemblyVersion("0.0.3")>]
 
 [<assembly: InternalsVisibleTo("Sparse.Tests")>]
 
