@@ -1,6 +1,9 @@
 # What is this?
 Sparse is a very simple parser combinator library for parsing small in memory strings using F#.
 
+# Where can I get it?
+Use the [NuGets](https://www.nuget.org/packages/Sparse/).
+
 # What are parser combinators and why should I use them?
 The FParsec library has a good overview [here](http://www.quanttec.com/fparsec/about/fparsec-vs-alternatives.html).
 
